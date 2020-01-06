@@ -1,0 +1,19 @@
+{
+  "name": "tasks-manager",
+  "version": "1.0.0",
+  "description": "A tasks management application built with Node.js and MongoDB",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://Benneee:TUpgu9ytT2j2CWL@github.com/Benneee/Node-Tasks-App.git"
+  },
+  "author": "Benedict Nkeonye",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Benneee/Node-Tasks-App/issues"
+  },
+  "homepage": "https://github.com/Benneee/Node-Tasks-App#readme"
+}
