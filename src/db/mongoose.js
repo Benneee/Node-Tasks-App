@@ -8,7 +8,8 @@ mongoose
   .connect(mongodb, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
-    useCreateIndex: true // Helps us to quickly access the data from the DB
+    useCreateIndex: true, // Helps us to quickly access the data from the DB
+    useFindAndModify: false
   })
   .then(() => log("Connected to MongoDB..."))
   .catch(error => log(error));
