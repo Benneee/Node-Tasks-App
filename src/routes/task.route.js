@@ -59,10 +59,16 @@ router.patch("/tasks/:id", async (req, res) => {
   }
   const _id = req.params.id;
   try {
-    const task = await Task.findByIdAndUpdate(_id, req.body, {
-      new: true,
-      runValidators: true
-    });
+    // const task = await Task.findByIdAndUpdate(_id, req.body, {
+    //   new: true,
+    //   runValidators: true
+    // });
+
+    // In case we need to use a middleware on the task
+    const task = await Task.findById(_id);
+
+    updates.forEach(update => (task[update] = req.body[update]));
+    await task.save();
     if (!task) {
       return res.status(404).send("Task not found!");
     }

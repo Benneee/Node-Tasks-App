@@ -62,11 +62,23 @@ router.patch("/users/:id", async (req, res) => {
     return res.status(400).send({ error: "Invalid update!" });
   }
   try {
-    const user = await User.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true
-    });
+    // Because some mongoose queries bypass advanced features like the middleware, so we need to tweak the update code so that the usage of the middleware can be consistent through every method that is saving a record, this includes update
+
+    // const user = await User.findByIdAndUpdate(req.params.id, req.body, {
+    //   new: true,
+    //   runValidators: true
+    // });
     // The options: 'new' will ensure the updated data is returned to us, not the old data. 'runValidators' will ensure the body of request is validated before the request is allowed to go through
+
+    // The restructuring goes thus:
+    //1. Find the user about to be updated
+    const user = await User.findById(req.params.id);
+
+    //2. Loop through the proposed updates and assign the values accordingly
+    updates.forEach((update) => user[update] = req.body[update])
+
+    //3. Call the save method on the document, this then allows the middleware to deal with the record being updated as well
+    await user.save();
 
     // We want to be sure the user being updated actually exist, hence:
     if (!user) {
