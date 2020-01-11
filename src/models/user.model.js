@@ -13,6 +13,7 @@ const userSchema = new mongoose.Schema({
   email: {
     type: String,
     required: [true, "Email address is required"],
+    unique: true, // To ensure we don't have the same email address for two users
     trim: true,
     lowercase: true,
     //   Using the validator library
@@ -45,6 +46,21 @@ const userSchema = new mongoose.Schema({
     }
   }
 });
+
+// Method to validate user on login
+userSchema.statics.findByCredentials = async (email, password) => {
+  // First, find the user by the email
+  const user = await User.findOne({ email });
+  if (!user) {
+    throw new Error("Unable to login");
+  }
+
+  const isMatch = await bcrypt.compare(password, user.password);
+  if (!isMatch) {
+    throw new Error("Unable to login");
+  }
+  return user;
+};
 
 // The method to introduce middleware into our model
 userSchema.pre("save", async function(next) {
