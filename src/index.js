@@ -88,6 +88,19 @@ app.patch("/users/:id", async (req, res) => {
   }
 });
 
+// DELETE user
+app.delete("/users/:id", async (req, res) => {
+  try {
+    const user = await User.findByIdAndDelete(req.params.id);
+    if (!user) {
+      return res.status(404).send("User not found");
+    }
+    res.status(200).send(`${user.name} deleted`);
+  } catch (error) {
+    res.status(400).send(error);
+  }
+});
+
 // POST (create) tasks
 app.post("/tasks", async (req, res) => {
   /**
@@ -152,6 +165,20 @@ app.patch("/tasks/:id", async (req, res) => {
       return res.status(404).send("Task not found!");
     }
     res.status(200).send(task);
+  } catch (error) {
+    res.status(500).send(error);
+  }
+});
+
+// DELETE task
+app.delete("/tasks/:id", async (req, res) => {
+  try {
+    const task = await Task.findByIdAndDelete(req.params.id);
+
+    if (!task) {
+      return res.status(404).send("Task not found!");
+    }
+    res.status(200).send(`${task.description} deleted`);
   } catch (error) {
     res.status(500).send(error);
   }
