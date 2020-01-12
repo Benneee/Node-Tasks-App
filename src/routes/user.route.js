@@ -18,7 +18,22 @@ router.post("/users", async (req, res) => {
   // Using a try-catch block
   try {
     await user.save();
-    res.status(201).send(user);
+    const token = await user.generateAuthToken();
+    res.status(201).send({ user, token });
+  } catch (error) {
+    res.status(400).send(error);
+  }
+});
+
+// LOGIN
+router.post("/users/login", async (req, res) => {
+  try {
+    const user = await User.findByCredentials(
+      req.body.email,
+      req.body.password
+    );
+    const token = await user.generateAuthToken();
+    res.status(200).send({ user, token });
   } catch (error) {
     res.status(400).send(error);
   }
@@ -75,7 +90,7 @@ router.patch("/users/:id", async (req, res) => {
     const user = await User.findById(req.params.id);
 
     //2. Loop through the proposed updates and assign the values accordingly
-    updates.forEach((update) => user[update] = req.body[update])
+    updates.forEach(update => (user[update] = req.body[update]));
 
     //3. Call the save method on the document, this then allows the middleware to deal with the record being updated as well
     await user.save();
