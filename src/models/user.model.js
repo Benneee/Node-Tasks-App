@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 const log = console.log;
 
 // For us to be able to use middleware, we use the schema to hold the expected data for a user
@@ -13,6 +14,7 @@ const userSchema = new mongoose.Schema({
   email: {
     type: String,
     required: [true, "Email address is required"],
+    unique: true, // To ensure we don't have the same email address for two users
     trim: true,
     lowercase: true,
     //   Using the validator library
@@ -43,8 +45,42 @@ const userSchema = new mongoose.Schema({
         throw new Error("Password cannot contain 'password'");
       }
     }
-  }
+  },
+  // We need to store the token generated for the user to enable them logout from their account
+  tokens: [
+    {
+      token: {
+        type: String,
+        required: [true, "No authentication token"]
+      }
+    }
+  ]
 });
+
+// Custom method to generate auth token
+userSchema.methods.generateAuthToken = async function() {
+  // First, we get the instance of the user
+  const user = this;
+  const token = jwt.sign({ _id: user._id.toString() }, "anewknowledge");
+  user.tokens = user.tokens.concat({ token });
+  await user.save();
+  return token;
+};
+
+// Custon method to validate user on login
+userSchema.statics.findByCredentials = async (email, password) => {
+  // First, find the user by the email
+  const user = await User.findOne({ email });
+  if (!user) {
+    throw new Error("Unable to login");
+  }
+
+  const isMatch = await bcrypt.compare(password, user.password);
+  if (!isMatch) {
+    throw new Error("Unable to login");
+  }
+  return user;
+};
 
 // The method to introduce middleware into our model
 userSchema.pre("save", async function(next) {
