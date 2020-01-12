@@ -9,10 +9,9 @@ const taskRouter = require("./routes/task.route");
 
 // Middleware: new request -> do stuff -> run route handler
 // Registering a middleware
-app.use((req, res, next) => {
-  console.log(req.method, req.path);
-  next(); // This method hands over control to the route handler to continue
-});
+// app.use((req, res, next) => {
+//   res.status(503).send("Site under maintenance, please check back later");
+// });
 
 // Parse the json
 app.use(express.json()); // No need for body-parser

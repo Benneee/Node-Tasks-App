@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const User = require("../models/user.model");
+const authMiddleware = require("../middleware/auth");
 
 // POST (create) users
 router.post("/users", async (req, res) => {
@@ -39,14 +40,15 @@ router.post("/users/login", async (req, res) => {
   }
 });
 
-// GET all users
-router.get("/users", async (req, res) => {
-  try {
-    const users = await User.find({});
-    res.status(200).send(users);
-  } catch (error) {
-    res.status(500).send(error);
-  }
+// GET all users => Repurposed to fetch the logged-in user's profile
+router.get("/users/me", authMiddleware, async (req, res) => {
+  // try {
+  //   const users = await User.find({});
+  //   res.status(200).send(users);
+  // } catch (error) {
+  //   res.status(500).send(error);
+  // }
+  res.send(req.user);
 });
 
 // GET single user
