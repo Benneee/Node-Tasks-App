@@ -40,6 +40,31 @@ router.post("/users/login", async (req, res) => {
   }
 });
 
+// LOGOUT
+router.post('/users/logout', authMiddleware, async (req, res) => {
+  try {
+    req.user.tokens = req.user.tokens.filter((token) => {
+      return token.token !== req.token
+    })
+    await req.user.save()
+
+    res.send('Logged out successfully')
+  } catch(error) {
+    res.status(500).send(error)
+  }
+})
+
+// LOGOUT ALL
+router.post('/users/logoutAll', authMiddleware, async (req, res) => {
+  try {
+    req.user.tokens = [];
+    await req.user.save();
+    res.send('Logged out in all places')
+  } catch(error) {
+    res.status(500).send()
+  }
+})
+
 // GET all users => Repurposed to fetch the logged-in user's profile
 router.get("/users/me", authMiddleware, async (req, res) => {
   // try {
