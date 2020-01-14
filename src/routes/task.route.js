@@ -1,10 +1,11 @@
 const express = require("express");
 const router = express.Router();
+const authMiddleware = require('../middleware/auth');
 
 const Task = require("../models/task.model");
 
 // POST (create) tasks
-router.post("/tasks", async (req, res) => {
+router.post("/tasks", authMiddleware, async (req, res) => {
   /**
    * Expects task format:
    * {
@@ -12,7 +13,13 @@ router.post("/tasks", async (req, res) => {
    *   completed: boolean
    * }
    */
-  const task = new Task(req.body);
+  // const task = new Task(req.body);
+
+  // We append the owner property before we create a task
+  const task = new Task({
+    ...req.body,
+    owner: req.user._id
+  })
   try {
     await task.save();
     res.status(201).send(task);
