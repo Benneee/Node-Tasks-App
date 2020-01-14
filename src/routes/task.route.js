@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const authMiddleware = require('../middleware/auth');
+const authMiddleware = require("../middleware/auth");
 
 const Task = require("../models/task.model");
 
@@ -19,7 +19,7 @@ router.post("/tasks", authMiddleware, async (req, res) => {
   const task = new Task({
     ...req.body,
     owner: req.user._id
-  })
+  });
   try {
     await task.save();
     res.status(201).send(task);
@@ -29,20 +29,24 @@ router.post("/tasks", authMiddleware, async (req, res) => {
 });
 
 // GET all tasks
-router.get("/tasks", async (req, res) => {
+router.get("/tasks", authMiddleware, async (req, res) => {
   try {
-    const tasks = await Task.find({});
-    res.status(200).send(tasks);
+    // I could also search by the 'owner' key
+    await req.user.populate("tasks").execPopulate();
+    res.send(req.user.tasks);
   } catch (error) {
     res.status(500).send(error);
   }
 });
 
 // GET single task
-router.get("/tasks/:id", async (req, res) => {
+router.get("/tasks/:id", authMiddleware, async (req, res) => {
   const taskID = req.params.id;
   try {
-    const task = await Task.findById(taskID);
+    // const task = await Task.findById(taskID);
+    // To make sure this task being fetched was created by the user trying to fetch
+    const task = await Task.findOne({ _id: taskID, owner: req.user._id });
+    // console.log("t: ", task);
     if (!task) {
       return res.status(404).send("Task not found!");
     }
@@ -53,7 +57,7 @@ router.get("/tasks/:id", async (req, res) => {
 });
 
 // UPDATE task
-router.patch("/tasks/:id", async (req, res) => {
+router.patch("/tasks/:id", authMiddleware, async (req, res) => {
   // To handle unwanted updates
   const updates = Object.keys(req.body);
   const allowedUpdates = ["description", "completed"];
@@ -72,13 +76,18 @@ router.patch("/tasks/:id", async (req, res) => {
     // });
 
     // In case we need to use a middleware on the task
-    const task = await Task.findById(_id);
-
-    updates.forEach(update => (task[update] = req.body[update]));
-    await task.save();
+    // const task = await Task.findById(_id);
+    const task = await Task.findOne({
+      _id: req.params.id,
+      owner: req.user._id
+    });
     if (!task) {
       return res.status(404).send("Task not found!");
     }
+
+    updates.forEach(update => (task[update] = req.body[update]));
+    await task.save();
+
     res.status(200).send(task);
   } catch (error) {
     res.status(500).send(error);
@@ -86,9 +95,13 @@ router.patch("/tasks/:id", async (req, res) => {
 });
 
 // DELETE task
-router.delete("/tasks/:id", async (req, res) => {
+router.delete("/tasks/:id", authMiddleware, async (req, res) => {
   try {
-    const task = await Task.findByIdAndDelete(req.params.id);
+    // const task = await Task.findByIdAndDelete(req.params.id);
+    const task = await Task.findOneAndDelete({
+      _id: req.params.id,
+      owner: req.user._id
+    });
 
     if (!task) {
       return res.status(404).send("Task not found!");
