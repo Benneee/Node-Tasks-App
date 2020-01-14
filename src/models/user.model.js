@@ -57,6 +57,23 @@ const userSchema = new mongoose.Schema({
   ]
 });
 
+// Virtual to fetch tasks belonging to a user
+userSchema.virtual('tasks', {
+  ref: 'Task',
+  localField: '_id',
+  foreignField: 'owner'
+})
+
+// Custom method to share only the necessary profile information
+userSchema.methods.toJSON = function() {
+  const user = this;
+  const userObject = user.toObject();
+  delete userObject.password;
+  delete userObject.tokens;
+
+  return userObject
+}
+
 // Custom method to generate auth token
 userSchema.methods.generateAuthToken = async function() {
   // First, we get the instance of the user
