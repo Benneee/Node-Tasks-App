@@ -16,7 +16,7 @@ const Task = mongoose.model("Task", {
   // Adding this field to assist in creating a relationship between a user and a task
   owner: {
     type: mongoose.Schema.Types.ObjectId,
-    required: [true, "Login to create a task"],
+    required: true,
 
     // Mongoose can help us to fetch the entire owner profile once we have access to a task
     ref: "User"

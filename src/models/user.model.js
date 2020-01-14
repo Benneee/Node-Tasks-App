@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const validator = require("validator");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const Task = require("../models/task.model");
 const log = console.log;
 
 // For us to be able to use middleware, we use the schema to hold the expected data for a user
@@ -58,11 +59,11 @@ const userSchema = new mongoose.Schema({
 });
 
 // Virtual to fetch tasks belonging to a user
-userSchema.virtual('tasks', {
-  ref: 'Task',
-  localField: '_id',
-  foreignField: 'owner'
-})
+userSchema.virtual("tasks", {
+  ref: "Task",
+  localField: "_id",
+  foreignField: "owner"
+});
 
 // Custom method to share only the necessary profile information
 userSchema.methods.toJSON = function() {
@@ -71,8 +72,8 @@ userSchema.methods.toJSON = function() {
   delete userObject.password;
   delete userObject.tokens;
 
-  return userObject
-}
+  return userObject;
+};
 
 // Custom method to generate auth token
 userSchema.methods.generateAuthToken = async function() {
@@ -118,6 +119,13 @@ userSchema.pre("save", async function(next) {
 
   next();
   // We call next so that the control will be passed back to the process saving the user to the DB
+});
+
+// Middleware to delete user tasks when user is removed
+userSchema.pre("remove", async function(next) {
+  const user = this;
+  await Task.deleteMany({ owner: user._id });
+  next();
 });
 
 //   Creating the User Model
