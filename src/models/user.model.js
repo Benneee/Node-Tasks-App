@@ -56,7 +56,10 @@ const userSchema = new mongoose.Schema({
       }
     }
   ]
-});
+}, {
+  timestamps: true
+}
+);
 
 // Virtual to fetch tasks belonging to a user
 userSchema.virtual("tasks", {
