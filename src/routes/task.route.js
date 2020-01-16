@@ -28,11 +28,21 @@ router.post("/tasks", authMiddleware, async (req, res) => {
   }
 });
 
-// GET all tasks
+// GET /tasks?completed=true
 router.get("/tasks", authMiddleware, async (req, res) => {
+  const match = {};
+  if (req.query.completed) {
+    match.completed = req.query.completed === "true";
+  }
   try {
     // I could also search by the 'owner' key
-    await req.user.populate("tasks").execPopulate();
+    // await req.user.populate("tasks").execPopulate();
+    await req.user
+      .populate({
+        path: "tasks",
+        match
+      })
+      .execPopulate();
     res.send(req.user.tasks);
   } catch (error) {
     res.status(500).send(error);
