@@ -40,7 +40,11 @@ router.get("/tasks", authMiddleware, async (req, res) => {
     await req.user
       .populate({
         path: "tasks",
-        match
+        match,
+        options: {
+          limit: parseInt(req.query.limit),
+          skip: parseInt(req.query.skip)
+        }
       })
       .execPopulate();
     res.send(req.user.tasks);
