@@ -5,7 +5,16 @@ const User = require("../models/user.model");
 const authMiddleware = require("../middleware/auth");
 
 const avatar = multer({
-  dest: "avatars"
+  dest: "avatars",
+  limits: {
+    fileSize: 1000000
+  },
+  fileFilter(req, file, cb) {
+    if (!file.originalname.match(/\.(jpeg|jpg|png)$/)) {
+      return cb(new Error("Please upload an image"));
+    }
+    cb(undefined, true);
+  }
 });
 
 // POST (create) users
@@ -153,8 +162,15 @@ router.delete("/users/me", authMiddleware, async (req, res) => {
 });
 
 // POST (Upload Avatar)
-router.post("/users/me/avatar", avatar.single("avatar"), (req, res) => {
-  res.status(200).send("Upload successful");
-});
+router.post(
+  "/users/me/avatar",
+  avatar.single("avatar"),
+  (req, res) => {
+    res.status(200).send("Upload successful");
+  },
+  (error, req, res, next) => {
+    res.status(400).send({ error: error.message });
+  }
+);
 
 module.exports = router;
