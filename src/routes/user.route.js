@@ -98,7 +98,7 @@ router.get("/users/me", authMiddleware, async (req, res) => {
 
 // UPDATE user
 router.patch("/users/me", authMiddleware, async (req, res) => {
-  // If a user is trying to update a property that doesn't exist or cannot be uodated(e.g: _id), we need to set up some error handling so that there can be proper communication
+  // If a user is trying to update a property that doesn't exist or cannot be updated(e.g: _id), we need to set up some error handling so that there can be proper communication
   const updates = Object.keys(req.body); // Returns an array of the keys of the body
   // Fields allowed to be updated
   const allowedUpdates = ["name", "age", "email", "password"];
