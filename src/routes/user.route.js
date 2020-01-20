@@ -5,7 +5,7 @@ const User = require("../models/user.model");
 const authMiddleware = require("../middleware/auth");
 
 const avatar = multer({
-  dest: "avatars",
+  // dest: "avatars",
   limits: {
     fileSize: 1000000
   },
@@ -164,13 +164,30 @@ router.delete("/users/me", authMiddleware, async (req, res) => {
 // POST (Upload Avatar)
 router.post(
   "/users/me/avatar",
+  authMiddleware,
   avatar.single("avatar"),
-  (req, res) => {
+  async (req, res) => {
+    /**
+     * To add the avatar to the user model
+     */
+    req.user.avatar = req.file.buffer;
+    await req.user.save();
     res.status(200).send("Upload successful");
   },
   (error, req, res, next) => {
     res.status(400).send({ error: error.message });
   }
 );
+
+// DELETE avatar
+router.delete("/users/me/avatar", authMiddleware, async (req, res) => {
+  try {
+    req.user.avatar = undefined;
+    await req.user.save();
+    res.status(200).send("Avatar deleted successfully");
+  } catch (error) {
+    res.status(400).send(error);
+  }
+});
 
 module.exports = router;

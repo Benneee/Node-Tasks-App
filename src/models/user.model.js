@@ -6,59 +6,64 @@ const Task = require("../models/task.model");
 const log = console.log;
 
 // For us to be able to use middleware, we use the schema to hold the expected data for a user
-const userSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: [true, "Name is required"], // Inbuilt validation with an error message
-    trim: true
-  },
-  email: {
-    type: String,
-    required: [true, "Email address is required"],
-    unique: true, // To ensure we don't have the same email address for two users
-    trim: true,
-    lowercase: true,
-    //   Using the validator library
-    validate(value) {
-      if (!validator.isEmail(value)) {
-        throw new Error("Email address is invalid");
+const userSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: [true, "Name is required"], // Inbuilt validation with an error message
+      trim: true
+    },
+    email: {
+      type: String,
+      required: [true, "Email address is required"],
+      unique: true, // To ensure we don't have the same email address for two users
+      trim: true,
+      lowercase: true,
+      //   Using the validator library
+      validate(value) {
+        if (!validator.isEmail(value)) {
+          throw new Error("Email address is invalid");
+        }
       }
+    },
+    age: {
+      type: Number,
+      // Custom validation
+      // Using the es6 syntax for object method
+      default: 0,
+      validate(value) {
+        if (value < 0) {
+          throw new Error("Age must be a positive number");
+        }
+      }
+    },
+    password: {
+      type: String,
+      minlength: [7, "Password must be at least 7 characters"],
+      required: [true, "Password is required"],
+      trim: true,
+      validate(value) {
+        if (value.toLowerCase().includes("password")) {
+          throw new Error("Password cannot contain 'password'");
+        }
+      }
+    },
+    // We need to store the token generated for the user to enable them logout from their account
+    tokens: [
+      {
+        token: {
+          type: String,
+          required: [true, "No authentication token"]
+        }
+      }
+    ],
+    avatar: {
+      type: Buffer
     }
   },
-  age: {
-    type: Number,
-    // Custom validation
-    // Using the es6 syntax for object method
-    default: 0,
-    validate(value) {
-      if (value < 0) {
-        throw new Error("Age must be a positive number");
-      }
-    }
-  },
-  password: {
-    type: String,
-    minlength: [7, "Password must be at least 7 characters"],
-    required: [true, "Password is required"],
-    trim: true,
-    validate(value) {
-      if (value.toLowerCase().includes("password")) {
-        throw new Error("Password cannot contain 'password'");
-      }
-    }
-  },
-  // We need to store the token generated for the user to enable them logout from their account
-  tokens: [
-    {
-      token: {
-        type: String,
-        required: [true, "No authentication token"]
-      }
-    }
-  ]
-}, {
-  timestamps: true
-}
+  {
+    timestamps: true
+  }
 );
 
 // Virtual to fetch tasks belonging to a user
