@@ -4,6 +4,7 @@ const sharp = require("sharp");
 const multer = require("multer");
 const User = require("../models/user.model");
 const authMiddleware = require("../middleware/auth");
+const { sendWelcomeEmail, sendCancelEmail } = require("../emails/account");
 
 const avatar = multer({
   // dest: "avatars",
@@ -34,6 +35,7 @@ router.post("/users", async (req, res) => {
   // Using a try-catch block
   try {
     await user.save();
+    sendWelcomeEmail(user.email, user.name);
     const token = await user.generateAuthToken();
     res.status(201).send({ user, token });
   } catch (error) {
@@ -156,9 +158,10 @@ router.delete("/users/me", authMiddleware, async (req, res) => {
     //   return res.status(404).send("User not found");
     // }
     await req.user.remove();
+    sendCancelEmail(req.user.email, req.user.name);
     res.status(200).send(`${req.user.name} deleted`);
   } catch (error) {
-    res.status(400).send(error);
+    res.status(500).send(error);
   }
 });
 
