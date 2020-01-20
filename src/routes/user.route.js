@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const sharp = require("sharp");
 const multer = require("multer");
 const User = require("../models/user.model");
 const authMiddleware = require("../middleware/auth");
@@ -170,7 +171,17 @@ router.post(
     /**
      * To add the avatar to the user model
      */
-    req.user.avatar = req.file.buffer;
+    // req.user.avatar = req.file.buffer;
+    /**
+     * Using Sharp
+     * .png() allows us to convert the images to png format and stay that way
+     * .resize() resizes the image to a standard size
+     */
+    const buffer = await sharp(req.file.buffer)
+      .resize({ width: 250, height: 250 })
+      .png()
+      .toBuffer();
+    req.user.avatar = buffer;
     await req.user.save();
     res.status(200).send("Upload successful");
   },
@@ -190,20 +201,20 @@ router.delete("/users/me/avatar", authMiddleware, async (req, res) => {
   }
 });
 
-// GET avatar
+// GET avatar => Test in the browser
 router.get("/users/:id/avatar", async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
 
     if (!user || !user.avatar) {
-      throw new Error()
+      throw new Error();
     }
 
-    res.set('Content-Type', 'image/jpg')
+    res.set("Content-Type", "image/png");
     res.send(user.avatar);
   } catch (error) {
-    res.status(404).send('Avatar not found')
+    res.status(404).send("Avatar not found");
   }
-})
+});
 
 module.exports = router;
