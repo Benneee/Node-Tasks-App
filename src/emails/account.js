@@ -22,6 +22,16 @@ const sendWelcomeEmail = (email, name) => {
   });
 };
 
+const sendCancelEmail = (email, name) => {
+  sgMail.send({
+    to: email,
+    from: "benedictiknkeonye@gmail.com",
+    subject: "Goodbye friend...",
+    text: `Goodbye dear ${name}, we will definitely miss you. If there is anything we could have done to keep you with us, please shoot us a mail. Cheers!`
+  });
+};
+
 module.exports = {
-  sendWelcomeEmail
+  sendWelcomeEmail,
+  sendCancelEmail
 };
