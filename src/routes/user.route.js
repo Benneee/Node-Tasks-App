@@ -4,6 +4,7 @@ const sharp = require("sharp");
 const multer = require("multer");
 const User = require("../models/user.model");
 const authMiddleware = require("../middleware/auth");
+const { sendWelcomeEmail } = require("../emails/account");
 
 const avatar = multer({
   // dest: "avatars",
@@ -34,6 +35,7 @@ router.post("/users", async (req, res) => {
   // Using a try-catch block
   try {
     await user.save();
+    sendWelcomeEmail(user.email, user.name);
     const token = await user.generateAuthToken();
     res.status(201).send({ user, token });
   } catch (error) {
