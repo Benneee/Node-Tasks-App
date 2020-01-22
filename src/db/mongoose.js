@@ -1,8 +1,7 @@
 const mongoose = require("mongoose");
 const log = console.log;
 
-const mongodb =
-  "mongodb+srv://benedict:rocket18@cluster0-8azdb.mongodb.net/tasks?retryWrites=true&w=majority";
+const mongodb = process.env.MONGODB_URL;
 
 mongoose
   .connect(mongodb, {
