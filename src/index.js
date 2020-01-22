@@ -13,6 +13,8 @@ const taskRouter = require("./routes/task.route");
 //   res.status(503).send("Site under maintenance, please check back later");
 // });
 
+app.get("/", (req, res) => res.send("Welcome to the Tasks App API Page!"));
+
 // Parse the json
 app.use(express.json()); // No need for body-parser
 
