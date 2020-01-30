@@ -6,7 +6,11 @@
   "scripts": {
     "start": "node src/index.js",
     "dev": "env-cmd ./configuration/dev.env nodemon src/index.js",
-    "test": "jest --watch"
+    "test": "env-cmd ./configuration/test.env jest --watch"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "setupTestFrameworkScriptFile": "./jest.setup.js"
   },
   "repository": {
     "type": "git",
@@ -32,6 +36,7 @@
   "devDependencies": {
     "env-cmd": "^8.0.2",
     "jest": "^23.6.0",
-    "nodemon": "^2.0.2"
+    "nodemon": "^2.0.2",
+    "supertest": "^3.4.1"
   }
 }
