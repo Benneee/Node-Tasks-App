@@ -9,7 +9,8 @@
     "test": "env-cmd ./configuration/test.env jest --watch"
   },
   "jest": {
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "setupTestFrameworkScriptFile": "./jest.setup.js"
   },
   "repository": {
     "type": "git",
