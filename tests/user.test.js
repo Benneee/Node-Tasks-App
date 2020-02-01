@@ -35,7 +35,7 @@ beforeEach(async () => {
 });
 
 test("Should sign up a new user", async () => {
-  await request(app)
+  const response = await request(app)
     .post("/users")
     .send({
       name: "Ben Nk",
@@ -43,6 +43,22 @@ test("Should sign up a new user", async () => {
       password: "Mypass123!"
     })
     .expect(201);
+
+  // Assert that the database was changed correctly
+  const user = await User.findById(response.body.user._id);
+  expect(user).not.toBeNull();
+
+  // Assertions about the response object
+  expect(response.body).toMatchObject({
+    user: {
+      name: "Ben Nk",
+      email: "amy103@yopmail.com"
+    },
+    token: user.tokens[0].token
+  });
+
+  // Assertion about the user password - ensure it's not saved as plain text
+  expect(user.password).not.toBe("Mypass123!");
 });
 
 test("Should login existing user", async () => {
@@ -80,4 +96,19 @@ test("Should not get profile for unauthenticated user", async () => {
     .expect(401);
 });
 
-// test("Should delete account for user")
+test("Should delete account for user", async () => {
+  await request(app)
+    .delete("/users/me")
+    .set("Authorization", `Bearer ${userOne.tokens[0].token}`)
+    .send()
+    .expect(200);
+});
+
+test("Should not delete account for unauthenticated user", async () => {
+  await request(app)
+    .delete("/users/me")
+    .send()
+    .expect(401);
+});
+
+// 401: "unauthorised"
