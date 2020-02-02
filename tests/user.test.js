@@ -34,41 +34,46 @@ beforeEach(async () => {
   await new User(userOne).save();
 });
 
-test("Should sign up a new user", async () => {
-  const response = await request(app)
-    .post("/users")
-    .send({
-      name: "Ben Nk",
-      email: "amy103@yopmail.com",
-      password: "Mypass123!"
-    })
-    .expect(201);
+// test("Should sign up a new user", async () => {
+//   const response = await request(app)
+//     .post("/users")
+//     .send({
+//       name: "Ben Nk",
+//       email: "amy103@yopmail.com",
+//       password: "Mypass123!"
+//     })
+//     .expect(201);
 
-  // Assert that the database was changed correctly
-  const user = await User.findById(response.body.user._id);
-  expect(user).not.toBeNull();
+// Assert that the database was changed correctly
+// const user = await User.findById(response.body.user._id);
+// expect(user).not.toBeNull();
 
-  // Assertions about the response object
-  expect(response.body).toMatchObject({
-    user: {
-      name: "Ben Nk",
-      email: "amy103@yopmail.com"
-    },
-    token: user.tokens[0].token
-  });
+// Assertions about the response object
+// expect(response.body).toMatchObject({
+//   user: {
+//     name: "Ben Nk",
+//     email: "amy103@yopmail.com"
+//   },
+//   token: user.tokens[0].token
+// });
 
-  // Assertion about the user password - ensure it's not saved as plain text
-  expect(user.password).not.toBe("Mypass123!");
-});
+// Assertion about the user password - ensure it's not saved as plain text
+// expect(user.password).not.toBe("Mypass123!");
+// });
 
 test("Should login existing user", async () => {
-  await request(app)
+  const response = await request(app)
     .post("/users/login")
     .send({
       email: userOne.email,
       password: userOne.password
     })
     .expect(200);
+
+  const user = await User.findById(userOne._id);
+
+  // Assert that token in DB is token created after user logs in
+  expect(response.body.token).toBe(user.tokens[1].token);
 });
 
 test("Should not login nonexistent user", async () => {
@@ -102,6 +107,9 @@ test("Should delete account for user", async () => {
     .set("Authorization", `Bearer ${userOne.tokens[0].token}`)
     .send()
     .expect(200);
+
+  const user = await User.findById(userOne._id);
+  expect(user).toBeNull();
 });
 
 test("Should not delete account for unauthenticated user", async () => {
