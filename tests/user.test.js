@@ -145,7 +145,7 @@ test("Should update valid user fields", async () => {
   expect(user.name).toBe("Ola");
 });
 
-test("Should update valid user fields", async () => {
+test("Should not update valid user fields", async () => {
   await request(app)
     .patch("/users/me")
     .set("Authorization", `Bearer ${userOne.tokens[0].token}`)
