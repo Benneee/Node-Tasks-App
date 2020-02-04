@@ -1,38 +1,20 @@
 const request = require("supertest");
-const jwt = require("jsonwebtoken");
-const mongoose = require("mongoose");
 // Load in the server file without the listen method call
 const app = require("../src/app");
+const { userOne, userOneId, setupDatabase } = require("./fixtures/db");
 /**
  * We need to wipe the database clean befor each of our tests, so we call
  * the lifecycle methods available in Jest to do this for us
  */
 
-/**
- * To work with endpoints that require authentication,
- * we need to create the _id property,
- * so that we can generate a token property and the _id field for the user
- */
 const User = require("../src/models/user.model");
 
-const userOneId = new mongoose.Types.ObjectId();
+// beforeEach(async () => {
+//   await User.deleteMany();
+//   await new User(userOne).save();
+// });
 
-const userOne = {
-  _id: userOneId,
-  name: "Teenah",
-  email: "teenah@aol.com",
-  password: "56what!!",
-  tokens: [
-    {
-      token: jwt.sign({ _id: userOneId }, process.env.JWT_SECRET)
-    }
-  ]
-};
-
-beforeEach(async () => {
-  await User.deleteMany();
-  await new User(userOne).save();
-});
+beforeEach(setupDatabase);
 
 // test("Should sign up a new user", async () => {
 //   const response = await request(app)
