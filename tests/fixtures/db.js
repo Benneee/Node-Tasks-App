@@ -81,5 +81,6 @@ module.exports = {
   userTwo,
   taskOne,
   taskTwo,
+  taskThree,
   setupDatabase
 };
