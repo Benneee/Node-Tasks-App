@@ -43,6 +43,39 @@ beforeEach(setupDatabase);
 // expect(user.password).not.toBe("Mypass123!");
 // });
 
+test("Should not signup user with invalid credentials(name)", async () => {
+  await request(app)
+    .post("/users")
+    .send({
+      name: "",
+      email: "anyemail@aol.com",
+      password: "mypass123!"
+    })
+    .expect(400);
+});
+
+test("Should not signup user with invalid credentials(email)", async () => {
+  await request(app)
+    .post("/users")
+    .send({
+      name: "any email",
+      email: "",
+      password: "mypass123!"
+    })
+    .expect(400);
+});
+
+test("Should not signup user with invalid credentials(email)", async () => {
+  await request(app)
+    .post("/users")
+    .send({
+      name: "any email",
+      email: "anyemail@aol.com",
+      password: "password"
+    })
+    .expect(400);
+});
+
 test("Should login existing user", async () => {
   const response = await request(app)
     .post("/users/login")
@@ -127,7 +160,7 @@ test("Should update valid user fields", async () => {
   expect(user.name).toBe("Ola");
 });
 
-test("Should not update valid user fields", async () => {
+test("Should not update invalid user fields", async () => {
   await request(app)
     .patch("/users/me")
     .set("Authorization", `Bearer ${userOne.tokens[0].token}`)
@@ -135,4 +168,22 @@ test("Should not update valid user fields", async () => {
       address: "Kano"
     })
     .expect(400);
+});
+
+test("Should not update user if unauthenticated", async () => {
+  await request(app)
+    .patch("/users/me")
+    .send({
+      address: "Kano"
+    })
+    .expect(401);
+});
+
+test("Should not delete user if unauthenticated", async () => {
+  await request(app)
+    .delete("/users/me")
+    .send({
+      name: "Kano"
+    })
+    .expect(401);
 });
